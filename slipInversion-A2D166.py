@@ -6,7 +6,7 @@
 # In[1]:
 
 
-#  this not useful for commandline get_ipython().run_line_magic('matplotlib', 'inline')
+##  this not useful for commandline get_ipython().run_line_magic('matplotlib', 'inline')
 # External libraries
 import numpy as np
 import matplotlib
@@ -327,8 +327,11 @@ slv.assembleCm()
 #         '''
 #         Solves the generalized least-square problem using the following formula (Tarantolla, 2005,         Inverse Problem Theory, SIAM):
 # 
-#             :math:`\\textbf{m}_{post} = \\textbf{m}_{prior} + (\\textbf{G}^t \\textbf{C}_d^{-1} \\textbf{G} + \\textbf{C}_m^{-1})^{-1} \\textbf{G}^t \\textbf{C}_d^{-1} (\\textbf{d} - \\textbf{Gm}_{prior})`
+# $$
+# \textbf{m}_{post} = \textbf{m}_{prior} + (\textbf{G}^t \textbf{C}_d^{-1} \textbf{G} + \textbf{C}_m^{-1})^{-1} \textbf{G}^t \textbf{C}_d^{-1} (\textbf{d} - \textbf{Gm}_{prior})
+# $$
 # 
+# For this simple example, we use all the defaults in the inversion method and don't specify a $\textbf{m}_{prior}$. The default is to use the model covariance $\textbf{C}_m$ that we calculated for each parameter.
 
 # In[27]:
 
@@ -337,7 +340,7 @@ slv.assembleCm()
 slv.GeneralizedLeastSquareSoln()
 
 
-# Now we distribute the solution model `m` back onto the original set of faults that we provided to the solver object with the `distributem` method.
+# Now we distribute the solution model `m` (which is the $\textbf{m}_{post}$ posterior estimate) back onto the original set of faults and transformation parameters that we provided to the solver object with the `distributem` method.
 
 # In[28]:
 
@@ -348,7 +351,7 @@ slv.distributem()
 
 # Now we can plot the results with the `geodeticplot` class.
 
-# In[30]:
+# In[29]:
 
 
 if plotSlip:
@@ -358,21 +361,25 @@ if plotSlip:
     gp.drawCoastlines(parallels=0.2, meridians=0.2, drawOnFault=True, resolution='fine')
     gp.faulttrace(fault, color='r',add=False)
     gp.faultpatches(fault, norm=[-2.0,2.0], colorbar=True, slip=slipMode, plot_on_2d=False, revmap=True)
-    gp.setzaxis(40.0, [0, 10, 20, 30, 40])
+    gp.setzaxis(40.0, zticklabels=[0, 10, 20, 30, 40])
 #
     gp.savefig(slipMode+'View', dpi=400,saveFig=['fault'])
-    gp.show(showFig=['fault'], fitOnBox=False)
+    gp.show(showFig=['fault'], fitOnBox=True)
     gp.clf()
 
 
-# In[ ]:
+# We can also save the slip model to an output file by writing out the slip on each patch for each fault with the `writePatches2File` method. The `total` slip is the magnitude of the strike-slip and dip-slip combined. In this example, we only allowed strike-slip displacements on the patches, so the total slip and the strike-slip components are the same. We change any spaces in the fault name to underscores to give better file names.
+
+# In[30]:
 
 
+for fault in faults:
+    try:
+        fault.writePatches2File(fault.name.replace(' ','_')+'_total.patches', add_slip='total')
+    except:
+        print('No fault patches')
 
 
+# The output file created by CSI is in the format used for plotting polygons with GMT and it includes the X, Y, and Z coordinates of the corners of each patch, so you can use standard GMT polygon fill commands to plot the results with `psxy` or `psxyz`. The X and Y are longitude and latitude in degrees and the Z is depth in km. The GMT parameter for specifying the color of polygons is stored in the "> -Z" line at the start of the polygon and includes the slip in meters.
 
-# In[ ]:
-
-
-
-
+# In[31]:
