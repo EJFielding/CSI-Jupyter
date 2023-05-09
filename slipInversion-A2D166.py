@@ -6,7 +6,7 @@
 # In[1]:
 
 
-get_ipython().run_line_magic('matplotlib', 'inline')
+#  this not useful for commandline get_ipython().run_line_magic('matplotlib', 'inline')
 # External libraries
 import numpy as np
 import matplotlib
