@@ -363,8 +363,8 @@ if plotSlip:
     gp.faultpatches(fault, norm=[-2.0,2.0], colorbar=True, slip=slipMode, plot_on_2d=False, revmap=True)
     gp.setzaxis(40.0, zticklabels=[0, 10, 20, 30, 40])
 #
-    gp.savefig(slipMode+'View', dpi=400,saveFig=['fault'])
     gp.show(showFig=['fault'], fitOnBox=True)
+    gp.savefig(slipMode+'View', dpi=400,saveFig=['fault'])
     gp.clf()
 
 
